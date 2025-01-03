@@ -45,8 +45,18 @@ class hook_callbacks {
         if (!$accessmanager->is_tenant_manager() || !$tenant->is_tenant_allowed()) {
             return;
         }
+        $param = [];
+        if (is_siteadmin($USER)) {
+            $systemcontext = \context_system::instance();
+            // Set the companyid
+            $companyid = \iomad::get_my_companyid($systemcontext);
+            $company = new \company($companyid);
+            $code = $company->get('code');
+            $param['tenant'] = $code;
+        }
+
         $node = navigation_node::create(get_string('aiadministrationlink', 'local_ai_manager'),
-                new moodle_url('/local/ai_manager/tenant_config.php'));
+                new moodle_url('/local/ai_manager/tenant_config.php', $param));
         $hook->get_primaryview()->add_node($node);
     }
 }
